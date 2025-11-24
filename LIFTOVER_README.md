@@ -136,6 +136,21 @@ export JAVA_MEM=4g
 
 **Note:** The T2T-CHM13 reference genome is very large (~3GB), so at least 8GB of heap memory is recommended for successful processing.
 
+### VCF Header Issues
+
+If Picard complains about missing INFO field definitions in the VCF header (e.g., "Key AA found in VariantContext field INFO but this key isn't defined in the VCFHeader"), you need to add proper header definitions.
+
+**Option 1: Use bcftools (recommended if available):**
+```bash
+# bcftools can automatically infer and add missing header definitions
+bcftools view -h snps_GRCh38.vcf > header.txt
+# Edit header.txt to add missing INFO definitions, then:
+bcftools reheader -h header.txt snps_GRCh38.vcf > snps_GRCh38_fixed.vcf
+```
+
+**Option 2: Manually add INFO definitions**
+The `snps_GRCh38.vcf` file in this repository includes proper VCF 4.3 headers with all necessary INFO field definitions (AC, AF, AN, NS, DP, EAS_AF, AMR_AF, AFR_AF, EUR_AF, SAS_AF, AA).
+
 ### Missing Dictionary File
 
 If Picard complains about missing dictionary file, create it manually:
