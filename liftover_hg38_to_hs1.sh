@@ -9,6 +9,9 @@
 set -euo pipefail
 
 # Variables
+# You can set PICARD_JAR environment variable before running this script
+# to specify the location of picard.jar, e.g.:
+# export PICARD_JAR=/path/to/picard.jar
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CHAIN_FILE="hg38ToHs1.over.chain.gz"
 INPUT_VCF="${SCRIPT_DIR}/snps_GRCh38.vcf"
@@ -16,7 +19,7 @@ OUTPUT_VCF="${SCRIPT_DIR}/snps_hs1.vcf"
 REJECTED_VCF="${SCRIPT_DIR}/snps_hs1_rejected.vcf"
 HS1_REFERENCE="hs1.fa"
 HS1_REFERENCE_GZ="hs1.fa.gz"
-PICARD_JAR=""
+PICARD_JAR="${PICARD_JAR:-}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -127,6 +130,12 @@ create_sequence_dict() {
 find_picard() {
     echo_info "Looking for Picard..."
     
+    # Check if PICARD_JAR environment variable is set
+    if [ -n "${PICARD_JAR}" ] && [ -f "${PICARD_JAR}" ]; then
+        echo_info "Using Picard from environment variable: ${PICARD_JAR}"
+        return 0
+    fi
+    
     # Check if picard is in PATH
     if command -v picard &> /dev/null; then
         echo_info "Found picard in PATH"
@@ -139,7 +148,8 @@ find_picard() {
         "/usr/share/picard/picard.jar"
         "/opt/picard/picard.jar"
         "$HOME/picard.jar"
-        "$(find /usr -name "picard*.jar" 2>/dev/null | head -n1)"
+        "/usr/share/java/picard.jar"
+        "/usr/local/share/picard/picard.jar"
     )
     
     for location in "${picard_locations[@]}"; do
@@ -152,6 +162,7 @@ find_picard() {
     
     echo_warn "Picard not found in common locations."
     echo_warn "You can download it from: https://github.com/broadinstitute/picard/releases"
+    echo_warn "Or set PICARD_JAR environment variable to the path of picard.jar"
     return 1
 }
 
@@ -180,15 +191,13 @@ run_liftover() {
         chain_uncompressed="${CHAIN_FILE}"
     fi
     
-    $cmd LiftoverVcf \
+    if $cmd LiftoverVcf \
         I="${INPUT_VCF}" \
         O="${OUTPUT_VCF}" \
         CHAIN="${chain_uncompressed}" \
         REJECT="${REJECTED_VCF}" \
         R="${HS1_REFERENCE}" \
-        WARN_ON_MISSING_CONTIG=true
-    
-    if [ $? -eq 0 ]; then
+        WARN_ON_MISSING_CONTIG=true; then
         echo_info "Liftover completed successfully!"
         echo_info "Output VCF: ${OUTPUT_VCF}"
         echo_info "Rejected variants: ${REJECTED_VCF}"

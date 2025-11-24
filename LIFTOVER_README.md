@@ -101,7 +101,11 @@ After creating `snps_hs1.vcf`, you can use it with SMaSH for data aligned to the
 
 If the script cannot find Picard, either:
 1. Install Picard and ensure it's in your PATH
-2. Set the `PICARD_JAR` variable in the script to point to your picard.jar location
+2. Set the `PICARD_JAR` environment variable to point to your picard.jar location:
+   ```bash
+   export PICARD_JAR=/path/to/picard.jar
+   ./liftover_hg38_to_hs1.sh
+   ```
 
 ### Download Failures
 
