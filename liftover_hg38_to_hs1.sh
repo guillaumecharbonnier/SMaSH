@@ -200,7 +200,8 @@ run_liftover() {
         CHAIN="${chain_uncompressed}" \
         REJECT="${REJECTED_VCF}" \
         R="${HS1_REFERENCE}" \
-        WARN_ON_MISSING_CONTIG=true; then
+        WARN_ON_MISSING_CONTIG=true \
+        RECOVER_SWAPPED_REF_ALT=true; then
         echo_info "Liftover completed successfully!"
         echo_info "Output VCF: ${OUTPUT_VCF}"
         echo_info "Rejected variants: ${REJECTED_VCF}"

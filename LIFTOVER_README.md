@@ -10,6 +10,10 @@ The script `liftover_hg38_to_hs1.sh` performs the following operations:
 2. Downloads the T2T-CHM13v2.0 (hs1) reference genome
 3. Applies Picard LiftoverVcf to convert `snps_GRCh38.vcf` to `snps_hs1.vcf`
 
+### Reference Allele Recovery
+
+The script automatically enables `RECOVER_SWAPPED_REF_ALT=true` to handle variants where the REF and ALT alleles are swapped between assemblies. This is common when lifting over between different reference genomes, as the ancestral vs. derived allele designation may differ. This feature significantly improves the liftover success rate by recovering variants that would otherwise be rejected due to mismatched reference alleles.
+
 ## Prerequisites
 
 ### Required Software
@@ -158,6 +162,12 @@ If Picard complains about missing dictionary file, create it manually:
 ```bash
 picard CreateSequenceDictionary R=hs1.fa O=hs1.dict
 ```
+
+### Mismatched Reference Alleles
+
+If you see many variants with "mismatching reference alleles after lift over", the script automatically handles this by enabling `RECOVER_SWAPPED_REF_ALT=true`. This recovers variants where the REF and ALT alleles are swapped between assemblies, which is common when different reference genomes use different conventions for ancestral vs. derived alleles.
+
+**Note:** Some variants may still fail if there are genuine sequence differences between assemblies that go beyond simple REF/ALT swaps. These will be written to the rejected variants file.
 
 ## References
 
