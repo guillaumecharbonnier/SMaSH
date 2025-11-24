@@ -20,6 +20,11 @@ The script `liftover_hg38_to_hs1.sh` performs the following operations:
 - **wget** or **curl** - for downloading files
 - **gunzip** - for decompressing files
 
+### System Requirements
+
+- **RAM**: At least 8GB of RAM is recommended (default Java heap size)
+- **Disk Space**: Approximately 4GB for the hs1 reference genome and chain files
+
 ### Optional Software
 
 - **samtools** - for creating FASTA index (recommended)
@@ -116,12 +121,20 @@ If downloads fail:
 
 ### Memory Issues
 
-For large VCF files, you may need to increase Java heap space:
+The script defaults to using 8GB of Java heap memory. If you encounter `OutOfMemoryError`, you can increase the memory allocation:
 
-Edit the script and modify the java command:
 ```bash
-java -Xmx4g -jar ${PICARD_JAR} LiftoverVcf ...
+export JAVA_MEM=16g
+./liftover_hg38_to_hs1.sh
 ```
+
+Alternatively, for systems with limited RAM, you can reduce the memory:
+```bash
+export JAVA_MEM=4g
+./liftover_hg38_to_hs1.sh
+```
+
+**Note:** The T2T-CHM13 reference genome is very large (~3GB), so at least 8GB of heap memory is recommended for successful processing.
 
 ### Missing Dictionary File
 

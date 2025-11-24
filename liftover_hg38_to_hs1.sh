@@ -12,6 +12,8 @@ set -euo pipefail
 # You can set PICARD_JAR environment variable before running this script
 # to specify the location of picard.jar, e.g.:
 # export PICARD_JAR=/path/to/picard.jar
+# You can also set JAVA_MEM to control Java heap memory (default: 8g)
+# export JAVA_MEM=16g
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CHAIN_FILE="hg38ToHs1.over.chain.gz"
 INPUT_VCF="${SCRIPT_DIR}/snps_GRCh38.vcf"
@@ -20,6 +22,7 @@ REJECTED_VCF="${SCRIPT_DIR}/snps_hs1_rejected.vcf"
 HS1_REFERENCE="hs1.fa"
 HS1_REFERENCE_GZ="hs1.fa.gz"
 PICARD_JAR="${PICARD_JAR:-}"
+JAVA_MEM="${JAVA_MEM:-8g}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -110,11 +113,11 @@ create_sequence_dict() {
     if [ ! -f "${dict_file}" ]; then
         echo_info "Creating sequence dictionary..."
         if [ -n "${PICARD_JAR}" ] && [ -f "${PICARD_JAR}" ]; then
-            java -jar "${PICARD_JAR}" CreateSequenceDictionary \
+            java -Xmx${JAVA_MEM} -jar "${PICARD_JAR}" CreateSequenceDictionary \
                 R="${reference}" \
                 O="${dict_file}"
         elif command -v picard &> /dev/null; then
-            picard CreateSequenceDictionary \
+            picard -Xmx${JAVA_MEM} CreateSequenceDictionary \
                 R="${reference}" \
                 O="${dict_file}"
         else
@@ -168,13 +171,13 @@ find_picard() {
 
 # Function to run liftover
 run_liftover() {
-    echo_info "Running Picard LiftoverVcf..."
+    echo_info "Running Picard LiftoverVcf with ${JAVA_MEM} heap memory..."
     
     local cmd=""
     if [ -n "${PICARD_JAR}" ] && [ -f "${PICARD_JAR}" ]; then
-        cmd="java -jar ${PICARD_JAR}"
+        cmd="java -Xmx${JAVA_MEM} -jar ${PICARD_JAR}"
     elif command -v picard &> /dev/null; then
-        cmd="picard"
+        cmd="picard -Xmx${JAVA_MEM}"
     else
         echo_error "Picard not found. Cannot run liftover."
         return 1
