@@ -285,30 +285,24 @@ for bam in bams:
 		reads = []
 		if data[loc][bam] == []:
 			new_entry = True
-			skipped_secondary = 0
-			skipped_supplementary = 0
 			skipped_no_seq = 0
+			skipped_no_position = 0
 			total_reads = 0
 			for alignedread in samfile.fetch(chrom, pos -1, pos): #pysam fetches with standard coordinates
 				total_reads += 1
-				# Skip secondary alignments (not primary alignment for the read)
-				if alignedread.is_secondary:
-					skipped_secondary += 1
-					continue
-				# Skip supplementary alignments (chimeric reads) - these often lack sequence data
-				if alignedread.is_supplementary:
-					skipped_supplementary += 1
-					continue
 				try:
 					index = alignedread.positions.index(pos - 1) #pysam lists with python 0-based coordinates
 					if alignedread.query is None:
 						skipped_no_seq += 1
-						continue  # Skip reads without query sequence
+						continue  # Skip reads without query sequence (e.g., BWA secondary alignments)
 					reads.append(alignedread.query[index])
 				except(ValueError):
-					continue #ValueError occurs when the read covers the requested base's position via splicing
-			if verbose and (skipped_secondary > 0 or skipped_supplementary > 0 or skipped_no_seq > 0):
-				eprint(f"  {loc}: total={total_reads}, used={len(reads)}, skipped_secondary={skipped_secondary}, skipped_supplementary={skipped_supplementary}, skipped_no_seq={skipped_no_seq}")
+					skipped_no_position += 1
+					continue #ValueError occurs when the read covers the requested base's position via splicing/indels
+			if verbose and (skipped_no_seq > 0 or skipped_no_position > 0):
+				eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
+			elif verbose:
+				eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}")
 			nts = []
 			nts.append(reads.count(ref))
 			non_ref = len(reads) - reads.count(ref)
