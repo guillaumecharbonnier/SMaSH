@@ -9,10 +9,15 @@ The script `liftover_hg38_to_hs1.sh` performs the following operations:
 1. Downloads the hg38 to hs1 chain file from UCSC Genome Browser
 2. Downloads the T2T-CHM13v2.0 (hs1) reference genome
 3. Applies Picard LiftoverVcf to convert `snps_GRCh38.vcf` to `snps_hs1.vcf`
+4. **Fixes INFO field order** for SMaSH compatibility
 
 ### Reference Allele Recovery
 
 The script automatically enables `RECOVER_SWAPPED_REF_ALT=true` to handle variants where the REF and ALT alleles are swapped between assemblies. This is common when lifting over between different reference genomes, as the ancestral vs. derived allele designation may differ. This feature significantly improves the liftover success rate by recovering variants that would otherwise be rejected due to mismatched reference alleles.
+
+### INFO Field Order Fix
+
+**Important:** Picard LiftoverVcf reorders INFO fields alphabetically, but SMaSH expects a specific order (AC, AF, AN, NS, DP, ...) because it extracts the allele frequency from a fixed position. The script automatically reorders the INFO fields after liftover to ensure compatibility with SMaSH.
 
 ## Prerequisites
 

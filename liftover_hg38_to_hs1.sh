@@ -212,6 +212,66 @@ run_liftover() {
     fi
 }
 
+# Function to fix INFO field order in the output VCF
+# Picard LiftoverVcf reorders INFO fields alphabetically, but SMaSH expects
+# a specific order (AC, AF, AN, ...) because it uses INFO[1] for AF value
+fix_info_field_order() {
+    echo_info "Fixing INFO field order for SMaSH compatibility..."
+    
+    local temp_file="${OUTPUT_VCF}.tmp"
+    
+    # Use awk to reorder INFO fields
+    awk 'BEGIN {FS=OFS="\t"}
+    /^#/ {print; next}
+    {
+        # Parse INFO field
+        n = split($8, fields, ";")
+        
+        # Build associative array and collect flags
+        delete info
+        flags = ""
+        for (i=1; i<=n; i++) {
+            if (index(fields[i], "=") > 0) {
+                split(fields[i], kv, "=")
+                info[kv[1]] = kv[2]
+            } else {
+                # Flag field (no value)
+                flags = flags ";" fields[i]
+            }
+        }
+        
+        # Build output in expected order: AC, AF, AN, NS, DP, EAS_AF, AMR_AF, AFR_AF, EUR_AF, SAS_AF, AA
+        output = ""
+        order[1]="AC"; order[2]="AF"; order[3]="AN"; order[4]="NS"; order[5]="DP"
+        order[6]="EAS_AF"; order[7]="AMR_AF"; order[8]="AFR_AF"; order[9]="EUR_AF"; order[10]="SAS_AF"
+        order[11]="AA"
+        
+        for (i=1; i<=11; i++) {
+            key = order[i]
+            if (key in info) {
+                if (output != "") output = output ";"
+                output = output key "=" info[key]
+            }
+        }
+        
+        # Append flags
+        if (flags != "") output = output flags
+        
+        $8 = output
+        print
+    }' "${OUTPUT_VCF}" > "${temp_file}"
+    
+    if [ $? -eq 0 ]; then
+        mv "${temp_file}" "${OUTPUT_VCF}"
+        echo_info "INFO field order fixed successfully."
+        return 0
+    else
+        echo_error "Failed to fix INFO field order."
+        rm -f "${temp_file}"
+        return 1
+    fi
+}
+
 # Main execution
 main() {
     echo_info "Starting hg38 to hs1 liftover process..."
@@ -251,6 +311,8 @@ main() {
     
     # Run liftover
     if run_liftover; then
+        # Fix INFO field order for SMaSH compatibility
+        fix_info_field_order
         echo_info "Process completed successfully!"
         exit 0
     else
