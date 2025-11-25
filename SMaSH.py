@@ -295,22 +295,23 @@ for bam in bams:
 					if alignedread.query is None:
 						skipped_no_seq += 1
 						continue  # Skip reads without query sequence (e.g., BWA secondary alignments)
-					reads.append(alignedread.query[index])
+					# Convert to uppercase to handle potential lowercase bases in Nanopore data
+					reads.append(alignedread.query[index].upper())
 				except(ValueError):
 					skipped_no_position += 1
 					continue #ValueError occurs when the read covers the requested base's position via splicing/indels
 			if verbose:
-				ref_count = reads.count(ref)
-				alt_count = reads.count(alt)
+				ref_count = reads.count(ref.upper())
+				alt_count = reads.count(alt.upper())
 				other_count = len(reads) - ref_count - alt_count
 				if skipped_no_seq > 0 or skipped_no_position > 0:
 					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
 				else:
 					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}")
 			nts = []
-			nts.append(reads.count(ref))
+			nts.append(reads.count(ref.upper()))
 			# Only count actual alt allele, not all non-ref bases (important for high-error-rate data like Nanopore)
-			nts.append(reads.count(alt))
+			nts.append(reads.count(alt.upper()))
 			data[loc][bam] = nts
 			INFO = cols[7].split(';')
 			#looks for AF in any field of the info column
