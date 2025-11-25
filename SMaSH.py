@@ -146,6 +146,9 @@ parser.add_argument('-include_rgid', '--include_rgid', action='store_true',dest=
 parser.add_argument('-sanity_check_chr', '--sanity_check_chr', action='store',dest='sanity_check_chr', required=False,
 	default='1',
 	help="The chromosome number to use in the bam index sanity check instead of '1' (must exist in sam/bam/cram file either with or without 'chr')" )
+parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', required=False,
+	default=False, 
+	help='Enable verbose logging for debugging')
 parser.add_argument('bam',nargs='*', help = 'BAM/SAM/CRAM files to check.  Note BAMs must end in .bam and be indexed')
 
 args = parser.parse_args()
@@ -161,6 +164,7 @@ alt_index = args.alt_index
 regenerate = args.regenerate
 output_dir = args.output_dir
 include_rgid = args.include_rgid
+verbose = args.verbose
 
 
 if  bams == ['ALL'] or bams == ['*']: 
@@ -282,14 +286,30 @@ for bam in bams:
 		reads = []
 		if data[loc][bam] == []:
 			new_entry = True
+			skipped_secondary = 0
+			skipped_supplementary = 0
+			skipped_no_seq = 0
+			total_reads = 0
 			for alignedread in samfile.fetch(chrom, pos -1, pos): #pysam fetches with standard coordinates
+				total_reads += 1
+				# Skip secondary alignments (not primary alignment for the read)
+				if alignedread.is_secondary:
+					skipped_secondary += 1
+					continue
+				# Skip supplementary alignments (chimeric reads) - these often lack sequence data
+				if alignedread.is_supplementary:
+					skipped_supplementary += 1
+					continue
 				try:
 					index = alignedread.positions.index(pos - 1) #pysam lists with python 0-based coordinates
 					if alignedread.query is None:
-						continue  # Skip reads without query sequence (e.g., some Nanopore supplementary alignments)
+						skipped_no_seq += 1
+						continue  # Skip reads without query sequence
 					reads.append(alignedread.query[index])
 				except(ValueError):
 					continue #ValueError occurs when the read covers the requested base's position via splicing
+			if verbose and (skipped_secondary > 0 or skipped_supplementary > 0 or skipped_no_seq > 0):
+				eprint(f"  {loc}: total={total_reads}, used={len(reads)}, skipped_secondary={skipped_secondary}, skipped_supplementary={skipped_supplementary}, skipped_no_seq={skipped_no_seq}")
 			nts = []
 			nts.append(reads.count(ref))
 			non_ref = len(reads) - reads.count(ref)
