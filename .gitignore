@@ -2,3 +2,4 @@
 *.bam
 *.bai
 *.p
+__pycache__/
