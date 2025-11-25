@@ -285,6 +285,8 @@ for bam in bams:
 			for alignedread in samfile.fetch(chrom, pos -1, pos): #pysam fetches with standard coordinates
 				try:
 					index = alignedread.positions.index(pos - 1) #pysam lists with python 0-based coordinates
+					if alignedread.query is None:
+						continue  # Skip reads without query sequence (e.g., some Nanopore supplementary alignments)
 					reads.append(alignedread.query[index])
 				except(ValueError):
 					continue #ValueError occurs when the read covers the requested base's position via splicing
