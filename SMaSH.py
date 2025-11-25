@@ -285,16 +285,8 @@ for bam in bams:
 			for alignedread in samfile.fetch(chrom, pos -1, pos): #pysam fetches with standard coordinates
 				try:
 					index = alignedread.positions.index(pos - 1) #pysam lists with python 0-based coordinates
-					# Guard against None sequence (pysam may return None for some records/CRAMs)
-					seq = getattr(alignedread, 'query_sequence', None)
-					if seq is None:
-						seq = getattr(alignedread, 'query', None)
-					if seq is None:
-						continue
-					if index < 0 or index >= len(seq):
-						continue
-					reads.append(seq[index])
-				except(ValueError, IndexError):
+					reads.append(alignedread.query[index])
+				except(ValueError):
 					continue #ValueError occurs when the read covers the requested base's position via splicing
 			nts = []
 			nts.append(reads.count(ref))
