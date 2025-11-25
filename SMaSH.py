@@ -299,10 +299,14 @@ for bam in bams:
 				except(ValueError):
 					skipped_no_position += 1
 					continue #ValueError occurs when the read covers the requested base's position via splicing/indels
-			if verbose and (skipped_no_seq > 0 or skipped_no_position > 0):
-				eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
-			elif verbose:
-				eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}")
+			if verbose:
+				ref_count = reads.count(ref)
+				alt_count = reads.count(alt)
+				other_count = len(reads) - ref_count - alt_count
+				if skipped_no_seq > 0 or skipped_no_position > 0:
+					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
+				else:
+					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}")
 			nts = []
 			nts.append(reads.count(ref))
 			non_ref = len(reads) - reads.count(ref)
