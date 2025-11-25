@@ -309,8 +309,8 @@ for bam in bams:
 					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}")
 			nts = []
 			nts.append(reads.count(ref))
-			non_ref = len(reads) - reads.count(ref)
-			nts.append(non_ref)
+			# Only count actual alt allele, not all non-ref bases (important for high-error-rate data like Nanopore)
+			nts.append(reads.count(alt))
 			data[loc][bam] = nts
 			INFO = cols[7].split(';')
 			#looks for AF in any field of the info column
