@@ -303,11 +303,14 @@ for bam in bams:
 			if verbose:
 				ref_count = reads.count(ref.upper())
 				alt_count = reads.count(alt.upper())
-				other_count = len(reads) - ref_count - alt_count
+				# Collect all "other" bases (neither REF nor ALT)
+				other_bases = [b for b in reads if b != ref.upper() and b != alt.upper()]
+				other_count = len(other_bases)
+				other_str = ''.join(other_bases) if other_bases else ''
 				if skipped_no_seq > 0 or skipped_no_position > 0:
-					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
+					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}:{other_str}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
 				else:
-					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}")
+					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}:{other_str}")
 			nts = []
 			nts.append(reads.count(ref.upper()))
 			# Only count actual alt allele, not all non-ref bases (important for high-error-rate data like Nanopore)
