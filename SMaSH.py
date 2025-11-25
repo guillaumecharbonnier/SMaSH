@@ -147,7 +147,6 @@ parser.add_argument('-sanity_check_chr', '--sanity_check_chr', action='store',de
 	default='1',
 	help="The chromosome number to use in the bam index sanity check instead of '1' (must exist in sam/bam/cram file either with or without 'chr')" )
 parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', required=False,
-	default=False, 
 	help='Enable verbose logging for debugging')
 parser.add_argument('bam',nargs='*', help = 'BAM/SAM/CRAM files to check.  Note BAMs must end in .bam and be indexed')
 
