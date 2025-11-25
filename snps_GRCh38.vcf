@@ -1,3 +1,16 @@
+##fileformat=VCFv4.3
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele frequency">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth">
+##INFO=<ID=EAS_AF,Number=A,Type=Float,Description="Allele frequency in East Asian populations">
+##INFO=<ID=AMR_AF,Number=A,Type=Float,Description="Allele frequency in American populations">
+##INFO=<ID=AFR_AF,Number=A,Type=Float,Description="Allele frequency in African populations">
+##INFO=<ID=EUR_AF,Number=A,Type=Float,Description="Allele frequency in European populations">
+##INFO=<ID=SAS_AF,Number=A,Type=Float,Description="Allele frequency in South Asian populations">
+##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral allele">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 chr1	826893	rs3115849	G	A	100	PASS	AC=3665;AF=0.731829;AN=5008;NS=2504;DP=14934;EAS_AF=0.8879;AMR_AF=0.8112;AFR_AF=0.3903;EUR_AF=0.8688;SAS_AF=0.8354;AA=.|||
 chr1	979560	rs13303033	T	C	100	PASS	AC=2552;AF=0.509585;AN=5008;NS=2504;DP=16059;EAS_AF=0.7123;AMR_AF=0.6095;AFR_AF=0.177;EUR_AF=0.5895;SAS_AF=0.5971;AA=C|||
 chr1	1082764	rs9442395	T	C	100	PASS	AC=2693;AF=0.53774;AN=5008;NS=2504;DP=14052;EAS_AF=0.7907;AMR_AF=0.6571;AFR_AF=0.2617;EUR_AF=0.5586;SAS_AF=0.544;AA=T|||
