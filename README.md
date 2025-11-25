@@ -64,6 +64,18 @@ optional arguments:
 
 ```
 
+### Using SMaSH with T2T-CHM13 (hs1) Reference ###
+
+For data aligned to the T2T-CHM13v2.0 (hs1) reference genome, you can use the provided liftover script to convert the GRCh38 SNP positions:
+
+    ./liftover_hg38_to_hs1.sh
+
+This will create `snps_hs1.vcf` which can then be used with SMaSH:
+
+    ./SMaSH.py -i snps_hs1.vcf sample1.bam sample2.bam
+
+For detailed instructions on using the liftover script, see [LIFTOVER_README.md](LIFTOVER_README.md).
+
 ### Dependencies ###
 
 

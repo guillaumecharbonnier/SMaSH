@@ -1,0 +1,33 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=CannotLiftOver,Description="Liftover of a variant that needed reverse-complementing failed for unknown reasons.">
+##FILTER=<ID=IndelStraddlesMultipleIntervals,Description="Reference allele in Indel is straddling multiple intervals in the chain, and so the results are not well defined.">
+##FILTER=<ID=MismatchedRefAllele,Description="Reference allele does not match reference genome sequence after liftover.">
+##FILTER=<ID=NoTarget,Description="Variant could not be lifted between genome builds.">
+##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral allele">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele frequency">
+##INFO=<ID=AFR_AF,Number=A,Type=Float,Description="Allele frequency in African populations">
+##INFO=<ID=AMR_AF,Number=A,Type=Float,Description="Allele frequency in American populations">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=AttemptedAlleles,Number=1,Type=String,Description="The alleles of the variant in the TARGET prior to failing due to reference allele mismatching to the target reference.">
+##INFO=<ID=AttemptedLocus,Number=1,Type=String,Description="The locus of the variant in the TARGET prior to failing due to reference allele mismatching to the target reference.">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth">
+##INFO=<ID=EAS_AF,Number=A,Type=Float,Description="Allele frequency in East Asian populations">
+##INFO=<ID=EUR_AF,Number=A,Type=Float,Description="Allele frequency in European populations">
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+##INFO=<ID=SAS_AF,Number=A,Type=Float,Description="Allele frequency in South Asian populations">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr1	145873487	rs6670984	C	T	100	MismatchedRefAllele	AA=C|||;AC=2828;AF=0.564696;AFR_AF=0.5794;AMR_AF=0.5043;AN=5008;AttemptedAlleles=C*->T;AttemptedLocus=chr1:144990301-144990301;DP=18882;EAS_AF=0.7252;EUR_AF=0.3797;NS=2504;SAS_AF=0.6125
+chr1	148808444	rs6656135	C	T	100	MismatchedRefAllele	AA=C|||;AC=2064;AF=0.412141;AFR_AF=0.3797;AMR_AF=0.4467;AN=5008;AttemptedAlleles=C*->T;AttemptedLocus=chr1:145475240-145475240;DP=55946;EAS_AF=0.3899;EUR_AF=0.4483;NS=2504;SAS_AF=0.4172
+chr1	149029849	rs79028512	G	T	100	MismatchedRefAllele	AA=.|||;AC=2209;AF=0.441094;AFR_AF=0.5408;AMR_AF=0.3804;AN=5008;AttemptedAlleles=G*->T;AttemptedLocus=chr1:145696919-145696919;DP=58128;EAS_AF=0.4464;EUR_AF=0.3191;NS=2504;SAS_AF=0.4693
+chr1	206110345	rs28676508	G	A	100	MismatchedRefAllele	AA=G|||;AC=1203;AF=0.240216;AFR_AF=0.4962;AMR_AF=0.1225;AN=5008;AttemptedAlleles=G*->A;AttemptedLocus=chr1:205374392-205374392;DP=12235;EAS_AF=0.0923;EUR_AF=0.1312;NS=2504;SAS_AF=0.2423
+chr10	46027444	rs10761581	T	G	100	MismatchedRefAllele	AA=g|||;AC=2302;AF=0.459665;AFR_AF=0.3222;AMR_AF=0.3228;AN=5008;AttemptedAlleles=T*->G;AttemptedLocus=chr10:46908319-46908319;DP=16941;EAS_AF=0.5119;EUR_AF=0.4433;NS=2504;SAS_AF=0.7055
+chr10	46549471	rs3127684	C	T	100	MismatchedRefAllele	AA=C|||;AC=2521;AF=0.503395;AFR_AF=0.4992;AMR_AF=0.5058;AN=5008;AttemptedAlleles=C*->T;AttemptedLocus=chr10:47435826-47435826;DP=30312;EAS_AF=0.505;EUR_AF=0.507;NS=2504;SAS_AF=0.502
+chr10	47368767	rs11204210	G	A	100	MismatchedRefAllele	AA=g|||;AC=1837;AF=0.366813;AFR_AF=0.3396;AMR_AF=0.2421;AN=5008;AttemptedAlleles=G*->A;AttemptedLocus=chr10:48260064-48260064;DP=18570;EAS_AF=0.4812;EUR_AF=0.329;NS=2504;SAS_AF=0.4131
+chr11	54603136	rs11246609	A	G	100	MismatchedRefAllele	AA=.|||;AC=3496;AF=0.698083;AFR_AF=0.5333;AMR_AF=0.8012;AN=5008;AttemptedAlleles=A*->G;AttemptedLocus=chr11:54539160-54539160;DP=15715;EAS_AF=0.7698;EUR_AF=0.7028;NS=2504;SAS_AF=0.7689
+chr11	121118626	rs612969	A	G	100	NoTarget	AA=G|||;AC=2220;AF=0.443291;AFR_AF=0.7428;AMR_AF=0.3818;AN=5008;DP=19359;EAS_AF=0.246;EUR_AF=0.4314;NS=2504;SAS_AF=0.2975
+chr12	121748362	rs28651018	C	T	100	NoTarget	AA=C|||;AC=2136;AF=0.426518;AFR_AF=0.2103;AMR_AF=0.4496;AN=5008;DP=19037;EAS_AF=0.5188;EUR_AF=0.5487;NS=2504;SAS_AF=0.4816
+chr15	22573063	rs1058831	T	C	100	MismatchedRefAllele	AA=C|||;AC=1690;AF=0.33746;AFR_AF=0.4826;AMR_AF=0.3069;AN=5008;AttemptedAlleles=T*->C;AttemptedLocus=chr15:20245179-20245179;DP=22469;EAS_AF=0.3135;EUR_AF=0.2286;NS=2504;SAS_AF=0.2996
+chr19	55358535	rs28712579	T	C	100	NoTarget	AA=C|||;AC=2409;AF=0.48103;AFR_AF=0.441;AMR_AF=0.5;AN=5008;DP=11320;EAS_AF=0.1845;EUR_AF=0.7078;NS=2504;SAS_AF=0.5941
+chr21	10602146	rs9996	T	G	100	MismatchedRefAllele	AA=.|||;AC=3061;AF=0.611222;AFR_AF=0.8328;AMR_AF=0.5288;AN=5008;AttemptedAlleles=T*->G;AttemptedLocus=chr14:5982795-5982795;DP=34297;EAS_AF=0.5466;EUR_AF=0.5099;NS=2504;SAS_AF=0.5409
+chrX	153182483	rs2008160	T	C	100	MismatchedRefAllele	AA=c|||;AC=1347;AF=0.356821;AFR_AF=0.2867;AMR_AF=0.2723;AN=3775;AttemptedAlleles=A*->G;AttemptedLocus=chrX:151485021-151485021;DP=13567;EAS_AF=0.4534;EUR_AF=0.1252;NS=2504;SAS_AF=0.2004
