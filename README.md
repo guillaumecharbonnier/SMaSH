@@ -84,6 +84,95 @@ SMaSH requires the following python libraries:
     scipy
     numpy
 
+---
+
+## SomaCheck
+
+### Introduction ###
+
+SomaCheck is a companion tool derived from SMaSH that evaluates whether a sequencing sample comes from germline (normal) tissue or from a somatic/cancer sample. It requires a VCF file containing known true somatic variants (e.g., from a tumor sample that has already been characterized).
+
+### How It Works ###
+
+The approach is based on the principle that:
+- **Germline samples** should NOT contain somatic mutations
+- **Somatic/cancer samples** SHOULD contain somatic mutations
+
+Given a BAM file and a VCF of known somatic variants, SomaCheck:
+1. Examines each somatic variant position in the sample BAM
+2. Counts reads supporting the reference and alternate alleles
+3. Calculates the variant allele frequency (VAF) at each position
+4. Uses statistical tests to determine if the observed variant reads are significantly above what would be expected from sequencing errors alone
+5. Classifies the sample as SOMATIC or GERMLINE based on the evidence
+
+### Usage ###
+
+SomaCheck is run by typing:
+
+    SomaCheck.py -s somatic_variants.vcf sample.bam
+
+Where `somatic_variants.vcf` contains the known somatic variants from a characterized tumor sample.
+
+Command line options:
+
+```
+usage: SomaCheck.py [-h] -s SOMATIC_VCF [-o OUTPUT] [-t THRESHOLD]
+                    [-m MIN_READS] [-v MIN_VARIANT_SITES] [-e EXPECTED_VAF]
+                    [--output_dir OUTPUT_DIR] [--sanity_check_chr SANITY_CHECK_CHR]
+                    [--verbose] [bam]
+
+positional arguments:
+  bam                   BAM/SAM/CRAM file to check
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s, --somatic_vcf     VCF file containing known true somatic variants (required)
+  -o, --output          Output file name [somacheck_out.txt]
+  -t, --threshold       P-value threshold for calling a site as having
+                        somatic variants [0.05]
+  -m, --min_reads       Minimum read depth at a site to consider it [10]
+  -v, --min_variant_sites
+                        Minimum number of sites with variant reads to
+                        classify as somatic [1]
+  -e, --expected_vaf    Expected VAF for somatic variants [0.3]
+  --output_dir          Directory to save output files [./]
+  --sanity_check_chr    Chromosome to use for BAM index sanity check [1]
+  --verbose             Print detailed output for each variant site
+```
+
+### Output ###
+
+SomaCheck produces two output files:
+
+1. **somacheck_out.txt** - Detailed results for each variant site including:
+   - Location, reference and alternate alleles
+   - Read counts (reference and alternate)
+   - Variant allele frequency (VAF)
+   - P-value and log-likelihood ratio
+   - Whether the site shows evidence of somatic variants
+
+2. **somacheck_summary.txt** - Summary statistics including:
+   - Total variants analyzed
+   - Sites with sufficient coverage
+   - Sites with variant evidence
+   - Final classification (SOMATIC or GERMLINE)
+
+### Interpretation ###
+
+- **SOMATIC (HIGH confidence)**: Multiple sites (≥3) show significant evidence of somatic variants. The sample likely comes from a tumor/cancer source.
+- **SOMATIC (MODERATE confidence)**: 1-2 sites show evidence. The sample may be from a tumor source, but additional validation is recommended.
+- **GERMLINE (HIGH confidence)**: No sites show variant reads. The sample is likely from normal/germline tissue.
+- **GERMLINE (MODERATE/LOW confidence)**: Few sites show variant reads but below the classification threshold. Further investigation may be warranted.
+
+### Use Cases ###
+
+- Verify that a "normal" sample in a tumor-normal pair is truly germline
+- Detect potential sample contamination or mix-ups
+- Quality control for cancer genomics studies
+- Validate tumor purity estimates
+
+---
+
 ### Citation ###
 
 If you use SMaSH in your project, please cite
