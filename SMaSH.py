@@ -290,16 +290,22 @@ for bam in bams:
 			total_reads = 0
 			for alignedread in samfile.fetch(chrom, pos -1, pos): #pysam fetches with standard coordinates
 				total_reads += 1
-				try:
-					index = alignedread.positions.index(pos - 1) #pysam lists with python 0-based coordinates
-					if alignedread.query is None:
-						skipped_no_seq += 1
-						continue  # Skip reads without query sequence (e.g., BWA secondary alignments)
-					# Convert to uppercase to handle potential lowercase bases in Nanopore data
-					reads.append(alignedread.query[index].upper())
-				except(ValueError):
+				if alignedread.query_sequence is None:
+					skipped_no_seq += 1
+					continue  # Skip reads without query sequence (e.g., BWA secondary alignments)
+				# Use get_aligned_pairs to correctly map query positions to reference positions
+				# This handles insertions and deletions properly
+				base_found = False
+				for query_pos, ref_pos in alignedread.get_aligned_pairs():
+					if ref_pos == pos - 1:  # Found the reference position we're looking for
+						if query_pos is not None:  # Not a deletion at this position
+							# Convert to uppercase to handle potential lowercase bases in Nanopore data
+							reads.append(alignedread.query_sequence[query_pos].upper())
+							base_found = True
+						break
+				if not base_found:
 					skipped_no_position += 1
-					continue #ValueError occurs when the read covers the requested base's position via splicing/indels
+					continue  # Position not covered or is a deletion
 			if verbose:
 				ref_count = reads.count(ref.upper())
 				alt_count = reads.count(alt.upper())
