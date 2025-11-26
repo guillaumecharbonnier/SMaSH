@@ -42,7 +42,7 @@ def calculate_vaf(ref_count, alt_count):
     return alt_count / float(total)
 
 
-def binomial_test_somatic(ref_count, alt_count, expected_vaf=0.0, min_reads=5):
+def binomial_test_somatic(ref_count, alt_count, min_reads=5):
     """
     Perform a statistical test to determine if the observed VAF
     is significantly different from what we'd expect in a germline sample.
@@ -89,7 +89,6 @@ def log_likelihood_ratio(ref_count, alt_count, expected_somatic_vaf=0.3):
     if total == 0:
         return 0.0  # No evidence
     
-    observed_vaf = alt_count / float(total)
     error_rate = 0.01
     
     # Avoid log(0) issues
@@ -154,10 +153,12 @@ def count_alleles_at_position(samfile, chrom, pos, ref, alt, chrom_refname=""):
     if "chr" not in chrom and chrom_refname == "chr":
         fetch_chrom = "chr" + chrom
     elif "chr" in chrom and chrom_refname == "":
-        if chrom not in ["chrX", "chrY", "chrM"]:
-            fetch_chrom = ''.join([c for c in chrom if c.isdigit()])
-        else:
+        if chrom == "chrM":
+            fetch_chrom = "MT"  # Handle mitochondrial chromosome
+        elif chrom in ["chrX", "chrY"]:
             fetch_chrom = chrom[-1]
+        else:
+            fetch_chrom = ''.join([c for c in chrom if c.isdigit()])
     else:
         fetch_chrom = chrom
     
@@ -265,11 +266,11 @@ def main():
     print(strftime("[%Y-%m-%d %H:%M:%S]"), f'Opening BAM file: {bam}')
     
     if bam.endswith('.bam'):
-        samfile = pysam.Samfile(bam, 'rb')
+        samfile = pysam.AlignmentFile(bam, 'rb')
     elif bam.endswith('.sam'):
-        samfile = pysam.Samfile(bam, 'r')
+        samfile = pysam.AlignmentFile(bam, 'r')
     elif bam.endswith('.cram'):
-        samfile = pysam.Samfile(bam, 'rc')
+        samfile = pysam.AlignmentFile(bam, 'rc')
     else:
         eprint(f'ERROR: Cannot determine file type of {bam}. Use .bam, .sam, or .cram extension.')
         sys.exit(1)
