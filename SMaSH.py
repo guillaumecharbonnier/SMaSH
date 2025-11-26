@@ -146,6 +146,8 @@ parser.add_argument('-include_rgid', '--include_rgid', action='store_true',dest=
 parser.add_argument('-sanity_check_chr', '--sanity_check_chr', action='store',dest='sanity_check_chr', required=False,
 	default='1',
 	help="The chromosome number to use in the bam index sanity check instead of '1' (must exist in sam/bam/cram file either with or without 'chr')" )
+parser.add_argument('-v', '--verbose', action='store_true', dest='verbose', required=False,
+	help='Enable verbose logging for debugging')
 parser.add_argument('bam',nargs='*', help = 'BAM/SAM/CRAM files to check.  Note BAMs must end in .bam and be indexed')
 
 args = parser.parse_args()
@@ -161,6 +163,7 @@ alt_index = args.alt_index
 regenerate = args.regenerate
 output_dir = args.output_dir
 include_rgid = args.include_rgid
+verbose = args.verbose
 
 
 if  bams == ['ALL'] or bams == ['*']: 
@@ -282,16 +285,42 @@ for bam in bams:
 		reads = []
 		if data[loc][bam] == []:
 			new_entry = True
+			skipped_no_seq = 0
+			skipped_no_position = 0
+			total_reads = 0
 			for alignedread in samfile.fetch(chrom, pos -1, pos): #pysam fetches with standard coordinates
-				try:
-					index = alignedread.positions.index(pos - 1) #pysam lists with python 0-based coordinates
-					reads.append(alignedread.query[index])
-				except(ValueError):
-					continue #ValueError occurs when the read covers the requested base's position via splicing
+				total_reads += 1
+				if alignedread.query_sequence is None:
+					skipped_no_seq += 1
+					continue  # Skip reads without query sequence (e.g., BWA secondary alignments)
+				# Use get_aligned_pairs to correctly map query positions to reference positions
+				# This handles insertions and deletions properly
+				base_found = False
+				for query_pos, ref_pos in alignedread.get_aligned_pairs():
+					if ref_pos == pos - 1:  # Found the reference position we're looking for
+						if query_pos is not None:  # Not a deletion at this position
+							# Convert to uppercase to handle potential lowercase bases in Nanopore data
+							reads.append(alignedread.query_sequence[query_pos].upper())
+							base_found = True
+						break
+				if not base_found:
+					skipped_no_position += 1
+					continue  # Position not covered or is a deletion
+			if verbose:
+				ref_count = reads.count(ref.upper())
+				alt_count = reads.count(alt.upper())
+				# Collect all "other" bases (neither REF nor ALT)
+				other_bases = [b for b in reads if b != ref.upper() and b != alt.upper()]
+				other_count = len(other_bases)
+				other_str = ''.join(other_bases) if other_bases else ''
+				if skipped_no_seq > 0 or skipped_no_position > 0:
+					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}:{other_str}, skipped_no_seq={skipped_no_seq}, skipped_no_position={skipped_no_position}")
+				else:
+					eprint(f"  [{os.path.basename(bam)}] {loc}: total={total_reads}, used={len(reads)}, ref={ref}:{ref_count}, alt={alt}:{alt_count}, other={other_count}:{other_str}")
 			nts = []
-			nts.append(reads.count(ref))
-			non_ref = len(reads) - reads.count(ref)
-			nts.append(non_ref)
+			nts.append(reads.count(ref.upper()))
+			# Only count actual alt allele, not all non-ref bases (important for high-error-rate data like Nanopore)
+			nts.append(reads.count(alt.upper()))
 			data[loc][bam] = nts
 			INFO = cols[7].split(';')
 			#looks for AF in any field of the info column
